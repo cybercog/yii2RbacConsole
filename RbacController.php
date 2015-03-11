@@ -32,58 +32,6 @@ class RbacController extends Controller
 
     public $by = 'user';
 
-    /**
-     * This common create main permission.
-     */
-    public function actionInit()
-    {
-
-        //create permission
-        $administration = $this->auth->createPermission('administration');
-        $administration->description = 'Go to backend site.';
-        $this->auth->add($administration);
-
-        //Super root have permission for everything.
-        $superRoot = $this->auth->createRole('super_root');
-        $superRoot->description = 'SUPER ROOT can everything.';
-        $this->auth->add($superRoot);
-
-        $customer = $this->auth->createRole('customer');
-        $customer->description = 'Looking for help.';
-        $this->auth->add($customer);
-
-        $producer = $this->auth->createRole('producer');
-        $producer->description = 'Sells his knowledge.';
-        $this->auth->add($producer);
-
-        $marketer = $this->auth->createRole('marketer');
-        $marketer->description = 'Deals with the advertising of the producers.';
-        $this->auth->add($marketer);
-
-        $financier = $this->auth->createRole('financier');
-        $financier->description = 'Financial administers the site.';
-        $this->auth->add($financier);
-
-        $admin = $this->auth->createRole('admin');
-        $admin->description = 'Just admin.';
-        $this->auth->add($admin);
-
-        //admin have all backend permission
-        $this->auth->addChild($admin, $financier);
-        $this->auth->addChild($admin, $marketer);
-        $this->auth->addChild($admin, $administration);
-
-        //super root have all permission
-        $this->auth->addChild($superRoot, $admin);
-        $this->auth->addChild($superRoot, $marketer);
-        $this->auth->addChild($superRoot, $financier);
-        $this->auth->addChild($superRoot, $producer);
-        $this->auth->addChild($superRoot, $customer);
-        $this->auth->addChild($superRoot, $administration);
-
-
-        $this->auth->assign($superRoot, 1);
-    }
 
     /**
      * Common assign role to user
@@ -144,7 +92,7 @@ class RbacController extends Controller
     }
 
     /**
-     * Common show ale roles from user
+     * Common show all roles of user
      * @param $username
      * @return int
      */
@@ -292,7 +240,12 @@ class RbacController extends Controller
         }
     }
 
-
+    /**
+     * Add child role to role.
+     * @param $parentName
+     * @param $childName
+     * @return mixed
+     */
     public function actionAddChildRole($parentName, $childName)
     {
         try {
@@ -318,6 +271,12 @@ class RbacController extends Controller
         }
     }
 
+    /**
+     * Add child premission to user or role
+     * @param $parentName
+     * @param $childName
+     * @return mixed
+     */
     public function actionAddChildPermission($parentName, $childName)
     {
         try {
@@ -427,7 +386,7 @@ class RbacController extends Controller
 
     public function options($actionID)
     {
-        $ret = ($actionID == 'show-permission') ? ['by'] : [];
+        $ret = ($actionID == 'show-permission' || $actionID == 'remove-child-permission') ? ['by'] : [];
 
         return array_merge(parent::options($actionID), $ret);
     }
